@@ -60,6 +60,7 @@ export default function App() {
 
   const [showVariables, setShowVariables] = useState(false);
   const [showConsole, setShowConsole] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [insertModalOpen, setInsertModalOpen] = useState(false);
   const [insertLocation, setInsertLocation] = useState<{ branchPath: BranchStep[]; index: number } | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -291,6 +292,7 @@ export default function App() {
               saving={saving}
               onSave={handleSave}
               onOpenMyFlows={() => setMyFlowsOpen(true)}
+              onToggleSidebar={() => setSidebarOpen((v) => !v)}
             />
 
             <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -305,6 +307,12 @@ export default function App() {
                 onNew={handleNew}
                 onAddBlock={handleAddBlockAtEnd}
                 errorMessage={errorMessage}
+                open={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+                showVariables={showVariables}
+                toggleVariables={() => setShowVariables((v) => !v)}
+                showConsole={showConsole}
+                toggleConsole={() => setShowConsole((v) => !v)}
               />
 
               <Workspace

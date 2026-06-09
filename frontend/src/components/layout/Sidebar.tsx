@@ -7,7 +7,11 @@ import {
   FileText,
   Trash,
   Plus,
+  X,
+  Variable,
+  Terminal,
 } from 'lucide-react';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 
 interface Props {
   isRunning: boolean;
@@ -20,38 +24,119 @@ interface Props {
   onNew: () => void;
   onAddBlock: () => void;
   errorMessage: string | null;
+
+  open: boolean;
+  onClose: () => void;
+
+  showVariables: boolean;
+  toggleVariables: () => void;
+  showConsole: boolean;
+  toggleConsole: () => void;
 }
 
 export default function Sidebar(props: Props) {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = useIsMobile();
 
   const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (f) props.onImport(f);
     e.target.value = '';
+    if (isMobile) props.onClose();
   };
 
+  const wrap = (action: () => void) => () => {
+    action();
+    if (isMobile) props.onClose();
+  };
+
+  if (isMobile && !props.open) return null;
+
   return (
-    <aside style={{
-      width: 250,
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      background: 'var(--bg-sidebar)',
-      borderRight: '1px solid var(--border-subtle)',
-      overflow: 'auto',
-    }}>
+    <>
+      {isMobile && (
+        <div
+          onClick={props.onClose}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 80,
+          }}
+        />
+      )}
+      <aside style={{
+        width: isMobile ? 280 : 250,
+        maxWidth: '85vw',
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        background: 'var(--bg-sidebar)',
+        borderRight: '1px solid var(--border-subtle)',
+        overflow: 'auto',
+        ...(isMobile ? {
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          zIndex: 90,
+          boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+        } : {}),
+      }}>
+      {isMobile && (
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '12px 14px',
+          borderBottom: '1px solid var(--border-subtle)',
+        }}>
+          <span style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: 'var(--text-primary)',
+          }}>Menu</span>
+          <button
+            onClick={props.onClose}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-secondary)',
+              cursor: 'pointer',
+              padding: 4,
+              display: 'flex',
+              borderRadius: 4,
+            }}
+          >
+            <X size={16} />
+          </button>
+        </div>
+      )}
       <Section title="Execução">
         {props.isRunning ? (
-          <BigButton label="Parar" Icon={Square} onClick={props.onStop} color="#ef4444" />
+          <BigButton label="Parar" Icon={Square} onClick={wrap(props.onStop)} color="#ef4444" />
         ) : (
-          <BigButton label="Executar" Icon={Play} onClick={props.onRun} color="#10b981" disabled={!props.canRun} />
+          <BigButton label="Executar" Icon={Play} onClick={wrap(props.onRun)} color="#10b981" disabled={!props.canRun} />
         )}
       </Section>
 
+      {isMobile && (
+        <Section title="Painéis">
+          <SmallButton
+            label={`${props.showVariables ? 'Ocultar' : 'Mostrar'} variáveis`}
+            Icon={Variable}
+            onClick={wrap(props.toggleVariables)}
+          />
+          <SmallButton
+            label={`${props.showConsole ? 'Ocultar' : 'Mostrar'} console`}
+            Icon={Terminal}
+            onClick={wrap(props.toggleConsole)}
+          />
+        </Section>
+      )}
+
       <Section title="Edição">
-        <SmallButton label="Adicionar bloco" Icon={Plus} onClick={props.onAddBlock} />
-        <SmallButton label="Novo fluxo" Icon={Trash} onClick={props.onNew} />
+        <SmallButton label="Adicionar bloco" Icon={Plus} onClick={wrap(props.onAddBlock)} />
+        <SmallButton label="Novo fluxo" Icon={Trash} onClick={wrap(props.onNew)} />
       </Section>
 
       <Section title="Arquivo">
@@ -63,8 +148,8 @@ export default function Sidebar(props: Props) {
           style={{ display: 'none' }}
           onChange={handleFile}
         />
-        <SmallButton label="Exportar .fprg" Icon={FileText} onClick={props.onExportFprg} />
-        <SmallButton label="Exportar para C" Icon={FileCode} onClick={props.onExportC} />
+        <SmallButton label="Exportar .fprg" Icon={FileText} onClick={wrap(props.onExportFprg)} />
+        <SmallButton label="Exportar para C" Icon={FileCode} onClick={wrap(props.onExportC)} />
       </Section>
 
       {props.errorMessage && (
@@ -95,7 +180,8 @@ export default function Sidebar(props: Props) {
       <div style={{ marginTop: 'auto', padding: 14, fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.5 }}>
         Clique num bloco para editar. Clique no <span style={{ color: 'var(--insert-button-bg)', fontWeight: 600 }}>+</span> para inserir.
       </div>
-    </aside>
+      </aside>
+    </>
   );
 }
 

@@ -223,6 +223,17 @@ input:focus, select:focus, textarea:focus {
   }
 }
 
+/* iOS dá zoom em inputs com font-size < 16px ao focar — força tamanho seguro em mobile */
+@media (max-width: 768px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+button, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
 .wf-node-kind {
   font-size: 9px;
   font-weight: 600;

@@ -1,9 +1,10 @@
 import {
   Workflow, Moon, Sun, Variable, Terminal, LogOut,
-  Save, FolderOpen, Loader2, Circle,
+  Save, FolderOpen, Loader2, Circle, Menu,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
+import { useIsMobile, useIsCompact } from '../../hooks/useMediaQuery';
 
 interface Props {
   programName: string;
@@ -18,6 +19,8 @@ interface Props {
   saving: boolean;
   onSave: () => void;
   onOpenMyFlows: () => void;
+
+  onToggleSidebar: () => void;
 }
 
 export default function Header({
@@ -31,21 +34,31 @@ export default function Header({
   saving,
   onSave,
   onOpenMyFlows,
+  onToggleSidebar,
 }: Props) {
   const { theme, toggle } = useTheme();
   const { user, logout } = useAuth();
+  const isMobile = useIsMobile();
+  const isCompact = useIsCompact();
 
   return (
     <header style={{
       height: 48,
       display: 'flex',
       alignItems: 'center',
-      padding: '0 16px',
+      padding: isMobile ? '0 8px' : '0 16px',
       background: 'var(--bg-sidebar)',
       borderBottom: '1px solid var(--border-subtle)',
-      gap: 12,
+      gap: isMobile ? 6 : 12,
+      flexShrink: 0,
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      {isMobile && (
+        <IconBtn onClick={onToggleSidebar} title="Menu">
+          <Menu size={18} />
+        </IconBtn>
+      )}
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
         <div style={{
           width: 28,
           height: 28,
@@ -57,14 +70,16 @@ export default function Header({
         }}>
           <Workflow size={15} color="#fff" />
         </div>
-        <h1 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
-          Web<span style={{ color: '#7c3aed' }}>Flow</span>
-        </h1>
+        {!isMobile && (
+          <h1 style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.01em' }}>
+            Web<span style={{ color: '#7c3aed' }}>Flow</span>
+          </h1>
+        )}
       </div>
 
-      <div style={{ height: 20, width: 1, background: 'var(--border-subtle)' }} />
+      {!isMobile && <div style={{ height: 20, width: 1, background: 'var(--border-subtle)' }} />}
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0, flex: isMobile ? 1 : '0 1 auto' }}>
         <input
           value={programName}
           onChange={(e) => onRename(e.target.value)}
@@ -78,49 +93,54 @@ export default function Header({
             outline: 'none',
             padding: '4px 8px',
             borderRadius: 4,
-            minWidth: 140,
-            maxWidth: 220,
+            minWidth: 0,
+            width: '100%',
+            maxWidth: isMobile ? '100%' : 220,
           }}
           onFocus={(e) => (e.currentTarget.style.background = 'var(--bg-hover)')}
           onBlur={(e) => (e.currentTarget.style.background = 'transparent')}
         />
-        <SaveIndicator dirty={dirty} saving={saving} />
+        {!isMobile && <SaveIndicator dirty={dirty} saving={saving} />}
       </div>
 
-      <div style={{ flex: 1 }} />
+      {!isMobile && <div style={{ flex: 1 }} />}
 
-      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-        <HeaderBtn onClick={onSave} title="Salvar (Ctrl+S)" disabled={saving}>
-          <Save size={14} />
-          <span style={{ fontSize: 12, fontWeight: 500 }}>Salvar</span>
-        </HeaderBtn>
-        <HeaderBtn onClick={onOpenMyFlows} title="Abrir um fluxo salvo">
-          <FolderOpen size={14} />
-          <span style={{ fontSize: 12, fontWeight: 500 }}>Meus fluxos</span>
-        </HeaderBtn>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
+        <IconBtn onClick={onSave} title="Salvar (Ctrl+S)" disabled={saving}>
+          <Save size={isMobile ? 16 : 14} />
+          {!isCompact && <span style={{ fontSize: 12, fontWeight: 500 }}>Salvar</span>}
+        </IconBtn>
+        <IconBtn onClick={onOpenMyFlows} title="Abrir um fluxo salvo">
+          <FolderOpen size={isMobile ? 16 : 14} />
+          {!isCompact && <span style={{ fontSize: 12, fontWeight: 500 }}>Meus fluxos</span>}
+        </IconBtn>
 
-        <div style={{ height: 20, width: 1, background: 'var(--border-subtle)', margin: '0 4px' }} />
+        {!isMobile && <div style={{ height: 20, width: 1, background: 'var(--border-subtle)', margin: '0 4px' }} />}
 
-        <ToggleBtn
-          active={showVariables}
-          onClick={toggleVariables}
-          title="Visualizar Variáveis"
-          Icon={Variable}
-          label="Variáveis"
-        />
-        <ToggleBtn
-          active={showConsole}
-          onClick={toggleConsole}
-          title="Console"
-          Icon={Terminal}
-          label="Console"
-        />
-        <HeaderBtn onClick={toggle} title={`Mudar para tema ${theme === 'dark' ? 'claro' : 'escuro'}`}>
+        {!isMobile && (
+          <>
+            <ToggleBtn
+              active={showVariables}
+              onClick={toggleVariables}
+              title="Variáveis"
+              Icon={Variable}
+              label={!isCompact ? 'Variáveis' : undefined}
+            />
+            <ToggleBtn
+              active={showConsole}
+              onClick={toggleConsole}
+              title="Console"
+              Icon={Terminal}
+              label={!isCompact ? 'Console' : undefined}
+            />
+          </>
+        )}
+        <IconBtn onClick={toggle} title={`Mudar para tema ${theme === 'dark' ? 'claro' : 'escuro'}`}>
           {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-        </HeaderBtn>
+        </IconBtn>
         {user && (
           <>
-            <div style={{ height: 20, width: 1, background: 'var(--border-subtle)', margin: '0 4px' }} />
+            {!isMobile && <div style={{ height: 20, width: 1, background: 'var(--border-subtle)', margin: '0 4px' }} />}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -139,24 +159,27 @@ export default function Header({
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                flexShrink: 0,
               }}>
                 {user.name.trim().slice(0, 1).toUpperCase()}
               </div>
-              <span style={{
-                fontSize: 12,
-                color: 'var(--text-secondary)',
-                fontWeight: 500,
-                maxWidth: 120,
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-              }}>
-                {user.name}
-              </span>
+              {!isCompact && (
+                <span style={{
+                  fontSize: 12,
+                  color: 'var(--text-secondary)',
+                  fontWeight: 500,
+                  maxWidth: 120,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {user.name}
+                </span>
+              )}
             </div>
-            <HeaderBtn onClick={logout} title={`Sair (${user.email})`}>
+            <IconBtn onClick={logout} title={`Sair (${user.email})`}>
               <LogOut size={16} />
-            </HeaderBtn>
+            </IconBtn>
           </>
         )}
       </div>
@@ -181,6 +204,7 @@ function SaveIndicator({ dirty, saving }: { dirty: boolean; saving: boolean }) {
       <span title="Alterações não salvas" style={{
         display: 'flex', alignItems: 'center', gap: 4,
         fontSize: 11, color: '#f59e0b',
+        whiteSpace: 'nowrap',
       }}>
         <Circle size={7} fill="currentColor" />
         Não salvo
@@ -188,9 +212,7 @@ function SaveIndicator({ dirty, saving }: { dirty: boolean; saving: boolean }) {
     );
   }
   return (
-    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-      Salvo
-    </span>
+    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>Salvo</span>
   );
 }
 
@@ -199,7 +221,7 @@ function ToggleBtn({ active, onClick, title, Icon, label }: {
   onClick: () => void;
   title: string;
   Icon: React.ComponentType<{ size?: number }>;
-  label: string;
+  label?: string;
 }) {
   return (
     <button
@@ -209,7 +231,7 @@ function ToggleBtn({ active, onClick, title, Icon, label }: {
         background: active ? 'var(--bg-hover)' : 'transparent',
         border: '1px solid ' + (active ? 'var(--border-strong)' : 'var(--border-subtle)'),
         color: active ? 'var(--text-primary)' : 'var(--text-secondary)',
-        padding: '6px 10px',
+        padding: label ? '6px 10px' : '6px 8px',
         borderRadius: 6,
         cursor: 'pointer',
         display: 'flex',
@@ -225,7 +247,7 @@ function ToggleBtn({ active, onClick, title, Icon, label }: {
   );
 }
 
-function HeaderBtn({
+function IconBtn({
   onClick,
   title,
   children,
@@ -245,7 +267,8 @@ function HeaderBtn({
         background: 'transparent',
         border: '1px solid var(--border-subtle)',
         color: 'var(--text-secondary)',
-        padding: '6px 10px',
+        padding: '6px 8px',
+        minHeight: 32,
         borderRadius: 6,
         cursor: disabled ? 'not-allowed' : 'pointer',
         display: 'flex',
