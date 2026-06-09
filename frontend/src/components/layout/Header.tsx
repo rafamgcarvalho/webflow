@@ -17,6 +17,7 @@ interface Props {
 
   dirty: boolean;
   saving: boolean;
+  hasFlowId: boolean;
   onSave: () => void;
   onOpenMyFlows: () => void;
 
@@ -32,6 +33,7 @@ export default function Header({
   toggleConsole,
   dirty,
   saving,
+  hasFlowId,
   onSave,
   onOpenMyFlows,
   onToggleSidebar,
@@ -100,7 +102,7 @@ export default function Header({
           onFocus={(e) => (e.currentTarget.style.background = 'var(--bg-hover)')}
           onBlur={(e) => (e.currentTarget.style.background = 'transparent')}
         />
-        {!isMobile && <SaveIndicator dirty={dirty} saving={saving} />}
+        {!isMobile && <SaveIndicator dirty={dirty} saving={saving} hasFlowId={hasFlowId} />}
       </div>
 
       {!isMobile && <div style={{ flex: 1 }} />}
@@ -187,7 +189,15 @@ export default function Header({
   );
 }
 
-function SaveIndicator({ dirty, saving }: { dirty: boolean; saving: boolean }) {
+function SaveIndicator({
+  dirty,
+  saving,
+  hasFlowId,
+}: {
+  dirty: boolean;
+  saving: boolean;
+  hasFlowId: boolean;
+}) {
   if (saving) {
     return (
       <span style={{
@@ -199,13 +209,17 @@ function SaveIndicator({ dirty, saving }: { dirty: boolean; saving: boolean }) {
       </span>
     );
   }
-  if (dirty) {
+  const unsaved = dirty || !hasFlowId;
+  if (unsaved) {
     return (
-      <span title="Alterações não salvas" style={{
-        display: 'flex', alignItems: 'center', gap: 4,
-        fontSize: 11, color: '#f59e0b',
-        whiteSpace: 'nowrap',
-      }}>
+      <span
+        title={hasFlowId ? 'Alterações não salvas' : 'Este fluxo ainda não foi salvo na sua conta'}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 4,
+          fontSize: 11, color: '#f59e0b',
+          whiteSpace: 'nowrap',
+        }}
+      >
         <Circle size={7} fill="currentColor" />
         Não salvo
       </span>

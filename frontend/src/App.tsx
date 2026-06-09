@@ -290,6 +290,7 @@ export default function App() {
               toggleConsole={() => setShowConsole((v) => !v)}
               dirty={dirty}
               saving={saving}
+              hasFlowId={currentFlowId !== null}
               onSave={handleSave}
               onOpenMyFlows={() => setMyFlowsOpen(true)}
               onToggleSidebar={() => setSidebarOpen((v) => !v)}
