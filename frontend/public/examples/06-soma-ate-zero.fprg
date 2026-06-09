@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="SomaAteZero"/>
+        <attribute name="authors" value="Estudante"/>
+        <attribute name="about" value="Lê números do usuário e soma até receber zero. Combina while com input dentro do laço."/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="valor, soma" type="Real" array="False" size=""/>
+            <assign variable="soma" expression="0"/>
+            <output expression="&quot;Digite um número (0 para encerrar):&quot;" newline="True"/>
+            <input variable="valor"/>
+            <while expression="valor != 0">
+                <assign variable="soma" expression="soma + valor"/>
+                <output expression="&quot;Digite outro número (0 para encerrar):&quot;" newline="True"/>
+                <input variable="valor"/>
+            </while>
+            <output expression="&quot;Soma total: &quot;" newline="False"/>
+            <output expression="soma" newline="True"/>
+        </body>
+    </function>
+</flowgorithm>

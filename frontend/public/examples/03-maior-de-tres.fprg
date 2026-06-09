@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="MaiorDeTres"/>
+        <attribute name="authors" value="Estudante"/>
+        <attribute name="about" value="Lê três números reais e imprime o maior (uso de if/else aninhado)."/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="a, b, c, maior" type="Real" array="False" size=""/>
+            <output expression="&quot;Digite o primeiro número:&quot;" newline="True"/>
+            <input variable="a"/>
+            <output expression="&quot;Digite o segundo número:&quot;" newline="True"/>
+            <input variable="b"/>
+            <output expression="&quot;Digite o terceiro número:&quot;" newline="True"/>
+            <input variable="c"/>
+            <if expression="a &gt;= b AND a &gt;= c">
+                <then>
+                    <assign variable="maior" expression="a"/>
+                </then>
+                <else>
+                    <if expression="b &gt;= c">
+                        <then>
+                            <assign variable="maior" expression="b"/>
+                        </then>
+                        <else>
+                            <assign variable="maior" expression="c"/>
+                        </else>
+                    </if>
+                </else>
+            </if>
+            <output expression="&quot;O maior é: &quot;" newline="False"/>
+            <output expression="maior" newline="True"/>
+        </body>
+    </function>
+</flowgorithm>

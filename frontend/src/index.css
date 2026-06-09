@@ -1,0 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+/* ========================================
+   WebFlow — Design Tokens (com suporte a temas)
+   ======================================== */
+
+:root {
+  /* Tema escuro (padrão) */
+  --bg-primary: #0f1117;
+  --bg-secondary: #1a1d27;
+  --bg-sidebar: #151820;
+  --bg-card: #1e2130;
+  --bg-hover: #252a3a;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-on-node: #ffffff;
+
+  --node-terminal: #7c3aed;
+  --node-process: #2563eb;
+  --node-input: #059669;
+  --node-output: #d97706;
+  --node-declare: #64748b;
+  --node-control: #db2777;
+
+  --edge-color: #475569;
+  --edge-active: #f59e0b;
+  --border-subtle: rgba(148, 163, 184, 0.12);
+  --border-strong: rgba(148, 163, 184, 0.25);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.3);
+  --insert-button-bg: #2563eb;
+  --active-ring: rgba(245, 158, 11, 0.9);
+
+  /* Console — cores das mensagens (saída/entrada/sistema) */
+  --console-out: #e5e7eb;
+  --console-in: #4ade80;
+  --console-sys: #fbbf24;
+  --console-prompt: #4ade80;
+}
+
+html[data-theme='light'] {
+  /* Escala de fundos: workspace (mais cinza) → sidebar (cinza claro) →
+     card (branco). Sem isso, painéis sumiam no fundo. */
+  --bg-primary: #e7ebf1;
+  --bg-secondary: #f1f4f9;
+  --bg-sidebar: #f1f4f9;
+  --bg-card: #ffffff;
+  --bg-hover: #dbe2ec;
+
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --text-on-node: #ffffff;
+
+  --node-terminal: #7c3aed;
+  --node-process: #1d4ed8;
+  --node-input: #047857;
+  --node-output: #b45309;
+  --node-declare: #475569;
+  --node-control: #be185d;
+
+  --edge-color: #94a3b8;
+  --edge-active: #ea580c;
+  /* Bordas e sombra mais marcadas para o card "flutuar" sobre o fundo claro */
+  --border-subtle: rgba(15, 23, 42, 0.15);
+  --border-strong: rgba(15, 23, 42, 0.3);
+  --shadow-card: 0 2px 8px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(15, 23, 42, 0.04);
+  --insert-button-bg: #1d4ed8;
+  --active-ring: rgba(234, 88, 12, 0.95);
+
+  /* Console — versões escuras para contraste em fundo cinza claro */
+  --console-out: #0f172a;
+  --console-in: #047857;
+  --console-sys: #b45309;
+  --console-prompt: #047857;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ========================================
+   React Flow overrides
+   ======================================== */
+
+.react-flow__background {
+  background-color: var(--bg-primary) !important;
+}
+
+.react-flow__node {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.react-flow__edge-path {
+  stroke: var(--edge-color) !important;
+  stroke-width: 2px !important;
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--edge-active) !important;
+  stroke-width: 2.5px !important;
+}
+
+.react-flow__controls {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--shadow-card) !important;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid var(--border-subtle) !important;
+  color: var(--text-secondary) !important;
+  fill: var(--text-secondary) !important;
+  width: 30px !important;
+  height: 30px !important;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+  fill: var(--text-primary) !important;
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none !important;
+}
+
+.react-flow__controls-button svg {
+  fill: currentColor !important;
+}
+
+.react-flow__minimap {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  border-radius: 10px !important;
+  box-shadow: var(--shadow-card) !important;
+  overflow: hidden;
+}
+
+.react-flow__attribution {
+  display: none !important;
+}
+
+/* Edge labels usam fill via labelStyle do RF; labelBg via labelBgStyle */
+.react-flow__edge-textbg { stroke: var(--border-subtle) !important; }
+
+/* ========================================
+   Scrollbar
+   ======================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-strong);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ========================================
+   Animações
+   ======================================== */
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+@keyframes glow-active {
+  0%, 100% { box-shadow: 0 0 0 3px var(--active-ring), 0 4px 18px rgba(0, 0, 0, 0.25); }
+  50% { box-shadow: 0 0 0 5px var(--active-ring), 0 4px 22px rgba(0, 0, 0, 0.3); }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+.node-active {
+  animation: glow-active 1s ease-in-out infinite;
+}
+
+/* ========================================
+   Componentes utilitários do app
+   ======================================== */
+
+.wf-node-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-on-node);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-node-kind {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}

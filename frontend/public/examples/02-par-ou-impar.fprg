@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="ParOuImpar"/>
+        <attribute name="authors" value="Estudante"/>
+        <attribute name="about" value="Lê um número inteiro e informa se é par ou ímpar (uso de if/else)."/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="numero" type="Integer" array="False" size=""/>
+            <output expression="&quot;Digite um número inteiro:&quot;" newline="True"/>
+            <input variable="numero"/>
+            <if expression="numero mod 2 == 0">
+                <then>
+                    <output expression="&quot;O número é par.&quot;" newline="True"/>
+                </then>
+                <else>
+                    <output expression="&quot;O número é ímpar.&quot;" newline="True"/>
+                </else>
+            </if>
+        </body>
+    </function>
+</flowgorithm>

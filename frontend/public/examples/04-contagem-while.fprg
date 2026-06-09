@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="Contagem"/>
+        <attribute name="authors" value="Estudante"/>
+        <attribute name="about" value="Imprime de 1 até N usando laço enquanto."/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="n, i" type="Integer" array="False" size=""/>
+            <output expression="&quot;Digite o valor de N:&quot;" newline="True"/>
+            <input variable="n"/>
+            <assign variable="i" expression="1"/>
+            <while expression="i &lt;= n">
+                <output expression="i" newline="True"/>
+                <assign variable="i" expression="i + 1"/>
+            </while>
+            <output expression="&quot;Fim da contagem.&quot;" newline="True"/>
+        </body>
+    </function>
+</flowgorithm>

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="CalculoMedia"/>
+        <attribute name="authors" value="Estudante"/>
+        <attribute name="about" value="Programa que calcula a média de duas notas e exibe o resultado."/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="nota1, nota2, media" type="Real" array="False" size=""/>
+            <output expression="&quot;Digite a primeira nota:&quot;" newline="True"/>
+            <input variable="nota1"/>
+            <output expression="&quot;Digite a segunda nota:&quot;" newline="True"/>
+            <input variable="nota2"/>
+            <assign variable="media" expression="(nota1 + nota2) / 2"/>
+            <output expression="&quot;A média é: &quot;" newline="False"/>
+            <output expression="media" newline="True"/>
+        </body>
+    </function>
+</flowgorithm>

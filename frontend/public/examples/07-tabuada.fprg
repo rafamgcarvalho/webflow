@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<flowgorithm fileversion="4.2">
+    <attributes>
+        <attribute name="name" value="Tabuada"/>
+        <attribute name="authors" value="Estudante"/>
+        <attribute name="about" value="Imprime a tabuada de multiplicação de 1 até 10 do número informado."/>
+    </attributes>
+    <function name="Main" type="None" variable="">
+        <parameters/>
+        <body>
+            <declare name="num, i, resultado" type="Integer" array="False" size=""/>
+            <output expression="&quot;Digite o número da tabuada:&quot;" newline="True"/>
+            <input variable="num"/>
+            <assign variable="i" expression="1"/>
+            <while expression="i &lt;= 10">
+                <assign variable="resultado" expression="num * i"/>
+                <output expression="num &amp; &quot; x &quot; &amp; i &amp; &quot; = &quot; &amp; resultado" newline="True"/>
+                <assign variable="i" expression="i + 1"/>
+            </while>
+        </body>
+    </function>
+</flowgorithm>
