@@ -238,6 +238,7 @@ export default function App() {
     controller.promise.finally(() => {
       setRunController(null);
       setInputRequest(null);
+      inputResolveRef.current = null;
       setConsoleLines((lines) => [...lines, { type: 'sys', text: '— fim da execução —' }]);
     });
   }, [program, requestInput]);

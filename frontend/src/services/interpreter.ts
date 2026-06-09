@@ -142,8 +142,7 @@ async function execStatement(
       return;
     }
     case 'input': {
-      const text = await cb.onInput(stmt.variable);
-      if (signal.aborted) throw new RuntimeError('Execução interrompida.');
+      const text = await raceAbort(cb.onInput(stmt.variable), signal);
       const lower = stmt.variable.toLowerCase();
       const info = scope.vars.get(lower);
       if (!info) throw new RuntimeError(`Variável '${stmt.variable}' não declarada.`);
@@ -199,6 +198,20 @@ function sleep(ms: number, signal: AbortSignal): Promise<void> {
       clearTimeout(t);
       reject(new RuntimeError('Execução interrompida.'));
     }, { once: true });
+  });
+}
+
+function raceAbort<T>(promise: Promise<T>, signal: AbortSignal): Promise<T> {
+  if (signal.aborted) {
+    return Promise.reject(new RuntimeError('Execução interrompida.'));
+  }
+  return new Promise<T>((resolve, reject) => {
+    const onAbort = () => reject(new RuntimeError('Execução interrompida.'));
+    signal.addEventListener('abort', onAbort, { once: true });
+    promise.then(
+      (v) => { signal.removeEventListener('abort', onAbort); resolve(v); },
+      (err) => { signal.removeEventListener('abort', onAbort); reject(err); },
+    );
   });
 }
 
