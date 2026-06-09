@@ -26,7 +26,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     try {
       localStorage.setItem('webflow-theme', theme);
     } catch {
-      // ignora
+      // noop
     }
   }, [theme]);
 

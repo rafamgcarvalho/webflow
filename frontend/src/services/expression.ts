@@ -1,7 +1,3 @@
-// Avaliador de expressões para o interpretador.
-// Sintaxe: literais (num/str/bool), variáveis, + - * / % ^, & (concat),
-// == != < <= > >=, && || !, AND OR NOT, mod, ( ).
-
 export type RuntimeValue = number | string | boolean;
 
 export class ExpressionError extends Error {
@@ -38,7 +34,6 @@ function tokenize(input: string): Token[] {
       continue;
     }
 
-    // Número
     if (/[0-9]/.test(c) || (c === '.' && /[0-9]/.test(input[i + 1] || ''))) {
       let j = i;
       while (j < input.length && /[0-9.]/.test(input[j])) j++;
@@ -47,7 +42,6 @@ function tokenize(input: string): Token[] {
       continue;
     }
 
-    // String
     if (c === '"') {
       let j = i + 1;
       let value = '';
@@ -69,7 +63,6 @@ function tokenize(input: string): Token[] {
       continue;
     }
 
-    // Identificador / palavra-chave
     if (/[A-Za-z_]/.test(c)) {
       let j = i;
       while (j < input.length && /[A-Za-z0-9_]/.test(input[j])) j++;
@@ -84,7 +77,6 @@ function tokenize(input: string): Token[] {
       continue;
     }
 
-    // Parênteses
     if (c === '(') {
       tokens.push({ type: 'LPAREN', value: '(', pos: i });
       i++;
@@ -96,7 +88,6 @@ function tokenize(input: string): Token[] {
       continue;
     }
 
-    // Operadores multi-caractere
     const two = input.slice(i, i + 2);
     if (two === '==' || two === '!=' || two === '<=' || two === '>=' || two === '&&' || two === '||' || two === '<>') {
       tokens.push({ type: 'OP', value: two === '<>' ? '!=' : two, pos: i });
@@ -105,7 +96,6 @@ function tokenize(input: string): Token[] {
     }
 
     if ('+-*/%^<>!&='.includes(c)) {
-      // '=' isolado é tratado como '=='
       tokens.push({ type: 'OP', value: c === '=' ? '==' : c, pos: i });
       i++;
       continue;

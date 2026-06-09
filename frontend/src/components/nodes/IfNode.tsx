@@ -25,14 +25,12 @@ const IfNode = memo(({ data }: Props) => {
       className="animate-fade-in-up"
       style={{ position: 'relative', width: DIAMOND_W, height: DIAMOND_H }}
     >
-      {/* Handle de entrada */}
       <Handle
         type="target"
         position={Position.Top}
         style={{ width: 1, height: 1, background: 'transparent', border: 'none' }}
       />
 
-      {/* Losango via SVG para a forma + texto sobreposto */}
       <svg
         width={DIAMOND_W}
         height={DIAMOND_H}
@@ -66,7 +64,6 @@ const IfNode = memo(({ data }: Props) => {
         <span className="wf-node-label" title={data.condition}>{display}</span>
       </div>
 
-      {/* Handle "verdadeiro" — esquerda */}
       <Handle
         id="left"
         type="source"
@@ -80,7 +77,6 @@ const IfNode = memo(({ data }: Props) => {
           border: 'none',
         }}
       />
-      {/* Handle "falso" — direita */}
       <Handle
         id="right"
         type="source"

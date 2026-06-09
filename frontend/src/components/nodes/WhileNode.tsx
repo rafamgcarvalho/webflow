@@ -72,7 +72,6 @@ const WhileNode = memo(({ data }: Props) => {
         <span className="wf-node-label" title={data.condition}>{display}</span>
       </div>
 
-      {/* Saída "verdadeiro" pela ponta direita */}
       <Handle
         id="right"
         type="source"
@@ -86,7 +85,6 @@ const WhileNode = memo(({ data }: Props) => {
           border: 'none',
         }}
       />
-      {/* Loop-back entra logo abaixo, na ponta direita */}
       <Handle
         id="rightTarget"
         type="target"
@@ -101,7 +99,6 @@ const WhileNode = memo(({ data }: Props) => {
         }}
       />
 
-      {/* Saída "falso" pelo bottom */}
       <Handle
         id="bottom"
         type="source"

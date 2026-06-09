@@ -136,8 +136,8 @@ function BrandingPanel() {
           letterSpacing: '-0.02em',
           marginBottom: 18,
         }}>
-          Construa, execute e exporte<br />
-          fluxogramas direto no navegador.
+          Do desenho ao algoritmo<br />
+          rodando, em segundos.
         </h2>
         <p style={{
           fontSize: 15,
@@ -145,27 +145,19 @@ function BrandingPanel() {
           color: 'rgba(255,255,255,0.78)',
           marginBottom: 28,
         }}>
-          Uma ferramenta moderna pra ensinar lógica de programação na web,
-          inspirada no Flowgorithm — sem instalação, com execução passo a passo
-          e exportação para código C.
+          Uma ferramenta moderna para ensinar e aprender lógica de programação:
+          desenhe o fluxograma, execute passo a passo e acompanhe cada variável
+          mudando em tempo real — tudo direto no navegador, sem instalação.
         </p>
 
         <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
           <Feature text="Editor visual com if/else, while e variáveis tipadas" />
           <Feature text="Execução interativa com painel de variáveis e console" />
           <Feature text="Exportação para código C equivalente" />
-          <Feature text="Importação direta de arquivos .fprg do Flowgorithm" />
         </ul>
       </div>
 
-      <div style={{
-        position: 'relative',
-        fontSize: 12,
-        color: 'rgba(255,255,255,0.55)',
-        letterSpacing: '0.06em',
-      }}>
-        TCC · 2026
-      </div>
+      <div style={{ position: 'relative' }} />
     </div>
   );
 }

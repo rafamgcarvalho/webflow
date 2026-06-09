@@ -45,8 +45,6 @@ const InsertEdge = memo((props: EdgeProps) => {
     if (insertData) onInsertAt(insertData.branchPath, insertData.index);
   };
 
-  // Quando há label (V/F), exibimos perto do source; "+" fica no centro.
-  // Quando não há label, o "+" ocupa o centro.
   return (
     <>
       <BaseEdge id={id} path={path} markerEnd={markerEnd} style={style} />

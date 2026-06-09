@@ -95,7 +95,6 @@ function VariableCard({ info }: { info: VariableInfo }) {
   const prevValueRef = useRef(info.value);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Anima quando o valor muda
   useEffect(() => {
     if (prevValueRef.current !== info.value && cardRef.current) {
       const el = cardRef.current;

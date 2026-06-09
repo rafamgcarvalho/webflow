@@ -1,12 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
-/* ========================================
-   WebFlow — Design Tokens (com suporte a temas)
-   ======================================== */
-
 :root {
-  /* Tema escuro (padrão) */
   --bg-primary: #0f1117;
   --bg-secondary: #1a1d27;
   --bg-sidebar: #151820;
@@ -33,7 +28,6 @@
   --insert-button-bg: #2563eb;
   --active-ring: rgba(245, 158, 11, 0.9);
 
-  /* Console — cores das mensagens (saída/entrada/sistema) */
   --console-out: #e5e7eb;
   --console-in: #4ade80;
   --console-sys: #fbbf24;
@@ -41,8 +35,6 @@
 }
 
 html[data-theme='light'] {
-  /* Escala de fundos: workspace (mais cinza) → sidebar (cinza claro) →
-     card (branco). Sem isso, painéis sumiam no fundo. */
   --bg-primary: #e7ebf1;
   --bg-secondary: #f1f4f9;
   --bg-sidebar: #f1f4f9;
@@ -63,14 +55,12 @@ html[data-theme='light'] {
 
   --edge-color: #94a3b8;
   --edge-active: #ea580c;
-  /* Bordas e sombra mais marcadas para o card "flutuar" sobre o fundo claro */
   --border-subtle: rgba(15, 23, 42, 0.15);
   --border-strong: rgba(15, 23, 42, 0.3);
   --shadow-card: 0 2px 8px rgba(15, 23, 42, 0.1), 0 0 0 1px rgba(15, 23, 42, 0.04);
   --insert-button-bg: #1d4ed8;
   --active-ring: rgba(234, 88, 12, 0.95);
 
-  /* Console — versões escuras para contraste em fundo cinza claro */
   --console-out: #0f172a;
   --console-in: #047857;
   --console-sys: #b45309;
@@ -96,10 +86,6 @@ body {
   width: 100vw;
   height: 100vh;
 }
-
-/* ========================================
-   React Flow overrides
-   ======================================== */
 
 .react-flow__background {
   background-color: var(--bg-primary) !important;
@@ -167,12 +153,7 @@ body {
   display: none !important;
 }
 
-/* Edge labels usam fill via labelStyle do RF; labelBg via labelBgStyle */
 .react-flow__edge-textbg { stroke: var(--border-subtle) !important; }
-
-/* ========================================
-   Scrollbar
-   ======================================== */
 
 ::-webkit-scrollbar {
   width: 8px;
@@ -191,10 +172,6 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
-
-/* ========================================
-   Animações
-   ======================================== */
 
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(8px); }
@@ -219,10 +196,6 @@ body {
   animation: glow-active 1s ease-in-out infinite;
 }
 
-/* ========================================
-   Componentes utilitários do app
-   ======================================== */
-
 .wf-node-label {
   font-size: 13px;
   font-weight: 500;
@@ -232,13 +205,11 @@ body {
   text-overflow: ellipsis;
 }
 
-/* Focus state em inputs/select dos formulários */
 input:focus, select:focus, textarea:focus {
   border-color: #7c3aed !important;
   box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18);
 }
 
-/* Esconde o painel de branding em telas estreitas */
 @media (max-width: 880px) {
   .webflow-branding-panel {
     display: none !important;

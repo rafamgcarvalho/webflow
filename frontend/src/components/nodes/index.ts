@@ -10,7 +10,6 @@ import JoinNode from './JoinNode';
 
 export const nodeTypes: NodeTypes = {
   terminal: TerminalNode,
-  // Os types dos statements seguem a propriedade `kind`
   assign: ProcessNode,
   input: InputNode,
   output: OutputNode,
