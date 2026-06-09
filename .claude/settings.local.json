@@ -25,7 +25,12 @@
       "Bash(vercel --version)",
       "Bash(railway --version)",
       "Bash(railway whoami *)",
-      "mcp__claude_ai_Vercel__list_teams"
+      "mcp__claude_ai_Vercel__list_teams",
+      "Bash(git config *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(echo \"credential.useHttpPath = $\\(git config --local credential.useHttpPath\\)\")",
+      "Bash(curl -s -m 60 https://webflow-api-kvgq.onrender.com/api/health)"
     ],
     "additionalDirectories": [
       "c:\\TCC2\\web-flow\\src"

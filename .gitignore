@@ -16,6 +16,8 @@ dist-ssr
 .env
 .env.*
 !.env-example
+# URL pública do backend, usada no build do front (não é segredo)
+!frontend/.env.production
 
 # Editor directories and files
 .vscode/*
