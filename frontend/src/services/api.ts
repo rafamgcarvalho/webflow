@@ -58,6 +58,17 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   return data as T;
 }
 
+export interface ApiFlowSummary {
+  id: string;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ApiFlow extends ApiFlowSummary {
+  statements: unknown[];
+}
+
 export const api = {
   register: (input: { name: string; email: string; password: string }) =>
     request<AuthResponse>('/api/auth/register', {
@@ -70,4 +81,19 @@ export const api = {
       body: JSON.stringify(input),
     }),
   me: () => request<{ user: ApiUser }>('/api/auth/me'),
+
+  listFlows: () => request<{ flows: ApiFlowSummary[] }>('/api/flows'),
+  getFlow: (id: string) => request<{ flow: ApiFlow }>(`/api/flows/${id}`),
+  createFlow: (input: { name: string; statements: unknown[] }) =>
+    request<{ flow: ApiFlow }>('/api/flows', {
+      method: 'POST',
+      body: JSON.stringify(input),
+    }),
+  updateFlow: (id: string, input: { name: string; statements: unknown[] }) =>
+    request<{ flow: ApiFlow }>(`/api/flows/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(input),
+    }),
+  deleteFlow: (id: string) =>
+    request<null>(`/api/flows/${id}`, { method: 'DELETE' }),
 };

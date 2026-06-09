@@ -9,6 +9,7 @@ import VariablesPanel from './components/panels/VariablesPanel';
 import ConsolePanel, { type ConsoleLine } from './components/panels/ConsolePanel';
 import InsertModal from './components/modals/InsertModal';
 import EditStatementModal from './components/modals/EditStatementModal';
+import MyFlowsModal from './components/modals/MyFlowsModal';
 import { FlowContext } from './contexts/FlowContext';
 
 import type { FlowProgram, Statement } from './types/flow';
@@ -22,11 +23,29 @@ import {
 } from './services/programOps';
 import { importFprgFile } from './services/fprgParser';
 import { exportToC } from './services/cExporter';
+import { exportToFprg } from './services/fprgExporter';
 import {
   runProgram,
   type RunController,
   type VariableInfo,
 } from './services/interpreter';
+import { api, ApiError } from './services/api';
+
+function downloadBlob(content: string, filename: string, mime: string) {
+  const blob = new Blob([content], { type: `${mime};charset=utf-8` });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function slugify(name: string): string {
+  return (name || 'fluxo').replace(/[^a-z0-9_-]/gi, '_').toLowerCase();
+}
 
 export default function App() {
   const [program, setProgram] = useState<FlowProgram>(emptyProgram);
@@ -45,11 +64,34 @@ export default function App() {
   const [insertLocation, setInsertLocation] = useState<{ branchPath: BranchStep[]; index: number } | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  const [currentFlowId, setCurrentFlowId] = useState<string | null>(null);
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [myFlowsOpen, setMyFlowsOpen] = useState(false);
+  const [myFlowsRefresh, setMyFlowsRefresh] = useState(0);
+
   const editingStatement: Statement | null = editingId
     ? findStatement(program, editingId)
     : null;
 
   const isRunning = runController !== null;
+
+  // Marca o fluxo como modificado quando o programa muda (exceto no carregamento inicial)
+  const skipDirtyRef = useRef(true);
+  useEffect(() => {
+    if (skipDirtyRef.current) {
+      skipDirtyRef.current = false;
+      return;
+    }
+    setDirty(true);
+  }, [program]);
+
+  const replaceProgram = useCallback((p: FlowProgram, flowId: string | null) => {
+    skipDirtyRef.current = true;
+    setProgram(p);
+    setCurrentFlowId(flowId);
+    setDirty(false);
+  }, []);
 
   const handleInsertAt = useCallback((branchPath: BranchStep[], index: number) => {
     if (isRunning) return;
@@ -89,35 +131,65 @@ export default function App() {
     try {
       setErrorMessage(null);
       const imported = await importFprgFile(file);
-      setProgram(imported);
+      replaceProgram(imported, null);
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : 'Erro ao importar.');
     }
-  }, []);
+  }, [replaceProgram]);
 
   const handleExportC = useCallback(() => {
-    const code = exportToC(program);
-    const blob = new Blob([code], { type: 'text/x-c;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${(program.name || 'programa').replace(/[^a-z0-9_-]/gi, '_').toLowerCase()}.c`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    downloadBlob(exportToC(program), `${slugify(program.name)}.c`, 'text/x-c');
+  }, [program]);
+
+  const handleExportFprg = useCallback(() => {
+    downloadBlob(exportToFprg(program), `${slugify(program.name)}.fprg`, 'application/xml');
   }, [program]);
 
   const handleNew = useCallback(() => {
     if (isRunning) return;
-    if (program.statements.length === 0) return;
-    if (confirm('Tem certeza? O fluxo atual será descartado.')) {
-      setProgram(emptyProgram());
+    if (program.statements.length === 0 && !currentFlowId) return;
+    if (dirty && !confirm('Tem alterações não salvas. Descartar e criar um novo fluxo?')) return;
+    replaceProgram(emptyProgram(), null);
+    setConsoleLines([]);
+    setVariables([]);
+    setErrorMessage(null);
+  }, [program.statements.length, isRunning, dirty, currentFlowId, replaceProgram]);
+
+  const handleSave = useCallback(async () => {
+    if (saving) return;
+    setSaving(true);
+    setErrorMessage(null);
+    try {
+      const payload = { name: program.name || 'Sem título', statements: program.statements };
+      if (currentFlowId) {
+        await api.updateFlow(currentFlowId, payload);
+      } else {
+        const { flow } = await api.createFlow(payload);
+        setCurrentFlowId(flow.id);
+      }
+      setDirty(false);
+      setMyFlowsRefresh((n) => n + 1);
+    } catch (err) {
+      setErrorMessage(err instanceof ApiError ? err.message : 'Erro ao salvar.');
+    } finally {
+      setSaving(false);
+    }
+  }, [saving, program, currentFlowId]);
+
+  const handleOpenFlow = useCallback(async (id: string) => {
+    try {
+      setErrorMessage(null);
+      const { flow } = await api.getFlow(id);
+      replaceProgram(
+        { name: flow.name, statements: flow.statements as Statement[] },
+        flow.id,
+      );
       setConsoleLines([]);
       setVariables([]);
-      setErrorMessage(null);
+    } catch (err) {
+      setErrorMessage(err instanceof ApiError ? err.message : 'Erro ao abrir fluxo.');
     }
-  }, [program.statements.length, isRunning]);
+  }, [replaceProgram]);
 
   const requestInput = useCallback((varName: string): Promise<string> => {
     setInputRequest(varName);
@@ -182,10 +254,14 @@ export default function App() {
         e.preventDefault();
         if (!isRunning && program.statements.length > 0) handleRun();
       }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        if (!isRunning) handleSave();
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [handleRun, isRunning, program.statements.length]);
+  }, [handleRun, handleSave, isRunning, program.statements.length]);
 
   return (
     <FlowContext.Provider value={{
@@ -210,6 +286,10 @@ export default function App() {
               toggleVariables={() => setShowVariables((v) => !v)}
               showConsole={showConsole}
               toggleConsole={() => setShowConsole((v) => !v)}
+              dirty={dirty}
+              saving={saving}
+              onSave={handleSave}
+              onOpenMyFlows={() => setMyFlowsOpen(true)}
             />
 
             <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
@@ -220,6 +300,7 @@ export default function App() {
                 onStop={handleStop}
                 onImport={handleImport}
                 onExportC={handleExportC}
+                onExportFprg={handleExportFprg}
                 onNew={handleNew}
                 onAddBlock={handleAddBlockAtEnd}
                 errorMessage={errorMessage}
@@ -252,6 +333,12 @@ export default function App() {
             onSave={handleSaveEdit}
             onClose={() => setEditingId(null)}
             onDelete={handleDelete}
+          />
+          <MyFlowsModal
+            open={myFlowsOpen}
+            onClose={() => setMyFlowsOpen(false)}
+            onOpenFlow={handleOpenFlow}
+            refreshKey={myFlowsRefresh}
           />
         </ReactFlowProvider>
       </FlowContext.Provider>

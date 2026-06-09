@@ -1,4 +1,7 @@
-import { Workflow, Moon, Sun, Variable, Terminal, LogOut } from 'lucide-react';
+import {
+  Workflow, Moon, Sun, Variable, Terminal, LogOut,
+  Save, FolderOpen, Loader2, Circle,
+} from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
 
@@ -10,6 +13,11 @@ interface Props {
   toggleVariables: () => void;
   showConsole: boolean;
   toggleConsole: () => void;
+
+  dirty: boolean;
+  saving: boolean;
+  onSave: () => void;
+  onOpenMyFlows: () => void;
 }
 
 export default function Header({
@@ -19,6 +27,10 @@ export default function Header({
   toggleVariables,
   showConsole,
   toggleConsole,
+  dirty,
+  saving,
+  onSave,
+  onOpenMyFlows,
 }: Props) {
   const { theme, toggle } = useTheme();
   const { user, logout } = useAuth();
@@ -31,7 +43,7 @@ export default function Header({
       padding: '0 16px',
       background: 'var(--bg-sidebar)',
       borderBottom: '1px solid var(--border-subtle)',
-      gap: 16,
+      gap: 12,
     }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <div style={{
@@ -52,28 +64,43 @@ export default function Header({
 
       <div style={{ height: 20, width: 1, background: 'var(--border-subtle)' }} />
 
-      <input
-        value={programName}
-        onChange={(e) => onRename(e.target.value)}
-        placeholder="Sem título"
-        style={{
-          background: 'transparent',
-          border: 'none',
-          color: 'var(--text-primary)',
-          fontSize: 13,
-          fontWeight: 500,
-          outline: 'none',
-          padding: '4px 8px',
-          borderRadius: 4,
-          minWidth: 160,
-        }}
-        onFocus={(e) => (e.currentTarget.style.background = 'var(--bg-hover)')}
-        onBlur={(e) => (e.currentTarget.style.background = 'transparent')}
-      />
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+        <input
+          value={programName}
+          onChange={(e) => onRename(e.target.value)}
+          placeholder="Sem título"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text-primary)',
+            fontSize: 13,
+            fontWeight: 500,
+            outline: 'none',
+            padding: '4px 8px',
+            borderRadius: 4,
+            minWidth: 140,
+            maxWidth: 220,
+          }}
+          onFocus={(e) => (e.currentTarget.style.background = 'var(--bg-hover)')}
+          onBlur={(e) => (e.currentTarget.style.background = 'transparent')}
+        />
+        <SaveIndicator dirty={dirty} saving={saving} />
+      </div>
 
       <div style={{ flex: 1 }} />
 
-      <div style={{ display: 'flex', gap: 6 }}>
+      <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+        <HeaderBtn onClick={onSave} title="Salvar (Ctrl+S)" disabled={saving}>
+          <Save size={14} />
+          <span style={{ fontSize: 12, fontWeight: 500 }}>Salvar</span>
+        </HeaderBtn>
+        <HeaderBtn onClick={onOpenMyFlows} title="Abrir um fluxo salvo">
+          <FolderOpen size={14} />
+          <span style={{ fontSize: 12, fontWeight: 500 }}>Meus fluxos</span>
+        </HeaderBtn>
+
+        <div style={{ height: 20, width: 1, background: 'var(--border-subtle)', margin: '0 4px' }} />
+
         <ToggleBtn
           active={showVariables}
           onClick={toggleVariables}
@@ -88,7 +115,6 @@ export default function Header({
           Icon={Terminal}
           label="Console"
         />
-        <div style={{ width: 6 }} />
         <HeaderBtn onClick={toggle} title={`Mudar para tema ${theme === 'dark' ? 'claro' : 'escuro'}`}>
           {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
         </HeaderBtn>
@@ -138,6 +164,36 @@ export default function Header({
   );
 }
 
+function SaveIndicator({ dirty, saving }: { dirty: boolean; saving: boolean }) {
+  if (saving) {
+    return (
+      <span style={{
+        display: 'flex', alignItems: 'center', gap: 4,
+        fontSize: 11, color: 'var(--text-muted)',
+      }}>
+        <Loader2 size={11} className="animate-spin" />
+        Salvando…
+      </span>
+    );
+  }
+  if (dirty) {
+    return (
+      <span title="Alterações não salvas" style={{
+        display: 'flex', alignItems: 'center', gap: 4,
+        fontSize: 11, color: '#f59e0b',
+      }}>
+        <Circle size={7} fill="currentColor" />
+        Não salvo
+      </span>
+    );
+  }
+  return (
+    <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+      Salvo
+    </span>
+  );
+}
+
 function ToggleBtn({ active, onClick, title, Icon, label }: {
   active: boolean;
   onClick: () => void;
@@ -169,24 +225,37 @@ function ToggleBtn({ active, onClick, title, Icon, label }: {
   );
 }
 
-function HeaderBtn({ onClick, title, children }: { onClick: () => void; title: string; children: React.ReactNode }) {
+function HeaderBtn({
+  onClick,
+  title,
+  children,
+  disabled,
+}: {
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+  disabled?: boolean;
+}) {
   return (
     <button
       onClick={onClick}
       title={title}
+      disabled={disabled}
       style={{
         background: 'transparent',
         border: '1px solid var(--border-subtle)',
         color: 'var(--text-secondary)',
-        padding: '6px 8px',
+        padding: '6px 10px',
         borderRadius: 6,
-        cursor: 'pointer',
+        cursor: disabled ? 'not-allowed' : 'pointer',
         display: 'flex',
         alignItems: 'center',
         gap: 6,
         fontSize: 12,
+        opacity: disabled ? 0.5 : 1,
       }}
       onMouseEnter={(e) => {
+        if (disabled) return;
         e.currentTarget.style.background = 'var(--bg-hover)';
         e.currentTarget.style.color = 'var(--text-primary)';
       }}

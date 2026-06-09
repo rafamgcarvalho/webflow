@@ -4,6 +4,7 @@ import {
   Square,
   Upload as UploadIcon,
   FileCode,
+  FileText,
   Trash,
   Plus,
 } from 'lucide-react';
@@ -15,6 +16,7 @@ interface Props {
   onStop: () => void;
   onImport: (file: File) => void;
   onExportC: () => void;
+  onExportFprg: () => void;
   onNew: () => void;
   onAddBlock: () => void;
   errorMessage: string | null;
@@ -61,6 +63,7 @@ export default function Sidebar(props: Props) {
           style={{ display: 'none' }}
           onChange={handleFile}
         />
+        <SmallButton label="Exportar .fprg" Icon={FileText} onClick={props.onExportFprg} />
         <SmallButton label="Exportar para C" Icon={FileCode} onClick={props.onExportC} />
       </Section>
 

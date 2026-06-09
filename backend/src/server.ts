@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import { env } from './config/env.js';
 import authRouter from './routes/auth.js';
+import flowsRouter from './routes/flows.js';
 
 export function createServer() {
   const app = express();
@@ -17,6 +18,7 @@ export function createServer() {
   });
 
   app.use('/api/auth', authRouter);
+  app.use('/api/flows', flowsRouter);
 
   app.use((_req: Request, res: Response) => {
     res.status(404).json({ error: 'Rota não encontrada.' });
