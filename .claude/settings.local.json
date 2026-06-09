@@ -16,7 +16,16 @@
       "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(48\\).toString\\('base64url'\\)\\)\")",
       "Bash(node -e \"const b=require\\('bcryptjs'\\);console.log\\(b.hashSync\\('timing-safe-placeholder',12\\)\\)\")",
       "Bash(git init *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(grep -i \"\\\\.env$\")",
+      "Bash(git commit -q -m ' *)",
+      "Bash(git branch *)",
+      "Bash(gh --version)",
+      "Bash(gh auth *)",
+      "Bash(vercel --version)",
+      "Bash(railway --version)",
+      "Bash(railway whoami *)",
+      "mcp__claude_ai_Vercel__list_teams"
     ],
     "additionalDirectories": [
       "c:\\TCC2\\web-flow\\src"
