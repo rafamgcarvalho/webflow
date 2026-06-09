@@ -39,39 +39,21 @@ export default function Sidebar(props: Props) {
       borderRight: '1px solid var(--border-subtle)',
       overflow: 'auto',
     }}>
-      {/* Execução */}
       <Section title="Execução">
         {props.isRunning ? (
-          <BigButton
-            label="Parar"
-            Icon={Square}
-            onClick={props.onStop}
-            color="#ef4444"
-          />
+          <BigButton label="Parar" Icon={Square} onClick={props.onStop} color="#ef4444" />
         ) : (
-          <BigButton
-            label="Executar"
-            Icon={Play}
-            onClick={props.onRun}
-            color="#10b981"
-            disabled={!props.canRun}
-          />
+          <BigButton label="Executar" Icon={Play} onClick={props.onRun} color="#10b981" disabled={!props.canRun} />
         )}
       </Section>
 
-      {/* Edição */}
       <Section title="Edição">
         <SmallButton label="Adicionar bloco" Icon={Plus} onClick={props.onAddBlock} />
         <SmallButton label="Novo fluxo" Icon={Trash} onClick={props.onNew} />
       </Section>
 
-      {/* Arquivo */}
       <Section title="Arquivo">
-        <SmallButton
-          label="Importar .fprg"
-          Icon={UploadIcon}
-          onClick={() => fileInputRef.current?.click()}
-        />
+        <SmallButton label="Importar .fprg" Icon={UploadIcon} onClick={() => fileInputRef.current?.click()} />
         <input
           ref={fileInputRef}
           type="file"
@@ -98,16 +80,17 @@ export default function Sidebar(props: Props) {
       )}
 
       <Section title="Blocos">
-        <Legend color="var(--node-terminal)" label="Início / Fim" />
-        <Legend color="var(--node-declare)" label="Declaração" />
-        <Legend color="var(--node-process)" label="Atribuição" />
-        <Legend color="var(--node-input)" label="Entrada" />
-        <Legend color="var(--node-output)" label="Saída" />
-        <Legend color="var(--node-control)" label="Se / Enquanto" />
+        <Legend shape="oval" color="var(--node-terminal)" label="Início / Fim" />
+        <Legend shape="dashed" color="var(--node-declare)" label="Declaração" />
+        <Legend shape="rect" color="var(--node-process)" label="Atribuição" />
+        <Legend shape="paraLeft" color="var(--node-input)" label="Entrada" />
+        <Legend shape="paraRight" color="var(--node-output)" label="Saída" />
+        <Legend shape="diamond" color="var(--node-control)" label="Se (condicional)" />
+        <Legend shape="hex" color="var(--node-control)" label="Enquanto (laço)" />
       </Section>
 
-      <div style={{ marginTop: 'auto', padding: 14, fontSize: 10, color: 'var(--text-muted)' }}>
-        Dica: clique duplo num bloco para editar.
+      <div style={{ marginTop: 'auto', padding: 14, fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.5 }}>
+        Clique num bloco para editar. Clique no <span style={{ color: 'var(--insert-button-bg)', fontWeight: 600 }}>+</span> para inserir.
       </div>
     </aside>
   );
@@ -201,12 +184,57 @@ function SmallButton({ label, Icon, onClick }: {
   );
 }
 
-function Legend({ color, label }: { color: string; label: string }) {
+type ShapeKind = 'oval' | 'rect' | 'dashed' | 'paraLeft' | 'paraRight' | 'diamond' | 'hex';
+
+function Legend({ shape, color, label }: { shape: ShapeKind; color: string; label: string }) {
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '3px 0', fontSize: 12, color: 'var(--text-secondary)' }}>
-      <span style={{ width: 14, height: 14, borderRadius: 3, background: color, flexShrink: 0 }} />
-      {label}
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 10,
+      padding: '4px 0',
+      fontSize: 12,
+      color: 'var(--text-secondary)',
+    }}>
+      <ShapeIcon shape={shape} color={color} />
+      <span>{label}</span>
     </div>
   );
 }
 
+function ShapeIcon({ shape, color }: { shape: ShapeKind; color: string }) {
+  const W = 28;
+  const H = 16;
+  const common = { fill: color, stroke: 'rgba(0,0,0,0.18)', strokeWidth: 1 } as const;
+
+  let element: React.ReactNode;
+  switch (shape) {
+    case 'oval':
+      element = <rect x={0.5} y={0.5} width={W - 1} height={H - 1} rx={H / 2} ry={H / 2} {...common} />;
+      break;
+    case 'rect':
+      element = <rect x={0.5} y={0.5} width={W - 1} height={H - 1} {...common} />;
+      break;
+    case 'dashed':
+      element = <rect x={0.5} y={0.5} width={W - 1} height={H - 1} rx={1} ry={1} fill={color} stroke="rgba(255,255,255,0.85)" strokeWidth={1} strokeDasharray="2 1.5" />;
+      break;
+    case 'paraLeft':
+      element = <polygon points={`5,1 ${W - 1},1 ${W - 5},${H - 1} 1,${H - 1}`} {...common} />;
+      break;
+    case 'paraRight':
+      element = <polygon points={`1,1 ${W - 5},1 ${W - 1},${H - 1} 5,${H - 1}`} {...common} />;
+      break;
+    case 'diamond':
+      element = <polygon points={`${W / 2},1 ${W - 1},${H / 2} ${W / 2},${H - 1} 1,${H / 2}`} {...common} />;
+      break;
+    case 'hex':
+      element = <polygon points={`5,1 ${W - 5},1 ${W - 1},${H / 2} ${W - 5},${H - 1} 5,${H - 1} 1,${H / 2}`} {...common} />;
+      break;
+  }
+
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} style={{ flexShrink: 0 }}>
+      {element}
+    </svg>
+  );
+}

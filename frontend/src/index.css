@@ -232,6 +232,19 @@ body {
   text-overflow: ellipsis;
 }
 
+/* Focus state em inputs/select dos formulários */
+input:focus, select:focus, textarea:focus {
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.18);
+}
+
+/* Esconde o painel de branding em telas estreitas */
+@media (max-width: 880px) {
+  .webflow-branding-panel {
+    display: none !important;
+  }
+}
+
 .wf-node-kind {
   font-size: 9px;
   font-weight: 600;

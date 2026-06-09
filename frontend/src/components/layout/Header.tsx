@@ -93,9 +93,45 @@ export default function Header({
           {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
         </HeaderBtn>
         {user && (
-          <HeaderBtn onClick={logout} title={`Sair (${user.email})`}>
-            <LogOut size={16} />
-          </HeaderBtn>
+          <>
+            <div style={{ height: 20, width: 1, background: 'var(--border-subtle)', margin: '0 4px' }} />
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '4px 6px 4px 4px',
+              borderRadius: 6,
+            }}>
+              <div style={{
+                width: 24,
+                height: 24,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #7c3aed, #6d28d9)',
+                color: '#fff',
+                fontSize: 11,
+                fontWeight: 700,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}>
+                {user.name.trim().slice(0, 1).toUpperCase()}
+              </div>
+              <span style={{
+                fontSize: 12,
+                color: 'var(--text-secondary)',
+                fontWeight: 500,
+                maxWidth: 120,
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}>
+                {user.name}
+              </span>
+            </div>
+            <HeaderBtn onClick={logout} title={`Sair (${user.email})`}>
+              <LogOut size={16} />
+            </HeaderBtn>
+          </>
         )}
       </div>
     </header>
