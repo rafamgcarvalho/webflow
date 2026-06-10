@@ -28,7 +28,7 @@ const ProcessNode = memo(({ data }: Props) => {
           minWidth: 220,
           height: 56,
           padding: '0 18px',
-          borderRadius: 2,
+          borderRadius: 0,
           background: 'var(--node-process)',
           display: 'flex',
           flexDirection: 'column',

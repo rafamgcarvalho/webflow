@@ -4,7 +4,6 @@ import {
   Square,
   Upload as UploadIcon,
   FileCode,
-  FileText,
   Trash,
   Plus,
   X,
@@ -20,7 +19,6 @@ interface Props {
   onStop: () => void;
   onImport: (file: File) => void;
   onExportC: () => void;
-  onExportFprg: () => void;
   onNew: () => void;
   onAddBlock: () => void;
   errorMessage: string | null;
@@ -148,7 +146,6 @@ export default function Sidebar(props: Props) {
           style={{ display: 'none' }}
           onChange={handleFile}
         />
-        <SmallButton label="Exportar .fprg" Icon={FileText} onClick={wrap(props.onExportFprg)} />
         <SmallButton label="Exportar para C" Icon={FileCode} onClick={wrap(props.onExportC)} />
       </Section>
 

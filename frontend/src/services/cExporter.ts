@@ -147,6 +147,10 @@ export function exportToC(program: FlowProgram): string {
     '',
     `/* Programa: ${program.name} */`,
     'int main(void) {',
+    '    /* Desabilita o buffer do stdout pra que prompts e saídas',
+    '       apareçam imediatamente, igual ao console do WebFlow. */',
+    '    setbuf(stdout, NULL);',
+    '',
   ];
   const footer = [
     '    return 0;',

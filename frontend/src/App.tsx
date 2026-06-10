@@ -23,7 +23,6 @@ import {
 } from './services/programOps';
 import { importFprgFile } from './services/fprgParser';
 import { exportToC } from './services/cExporter';
-import { exportToFprg } from './services/fprgExporter';
 import {
   runProgram,
   type RunController,
@@ -141,10 +140,6 @@ export default function App() {
 
   const handleExportC = useCallback(() => {
     downloadBlob(exportToC(program), `${slugify(program.name)}.c`, 'text/x-c');
-  }, [program]);
-
-  const handleExportFprg = useCallback(() => {
-    downloadBlob(exportToFprg(program), `${slugify(program.name)}.fprg`, 'application/xml');
   }, [program]);
 
   const handleNew = useCallback(() => {
@@ -318,7 +313,6 @@ export default function App() {
                 onStop={handleStop}
                 onImport={handleImport}
                 onExportC={handleExportC}
-                onExportFprg={handleExportFprg}
                 onNew={handleNew}
                 onAddBlock={handleAddBlockAtEnd}
                 errorMessage={errorMessage}
