@@ -223,6 +223,23 @@ input:focus, select:focus, textarea:focus {
   }
 }
 
+/* Login/cadastro sempre no tema escuro, independente do tema escolhido no editor. */
+.force-dark {
+  --bg-primary: #0f1117;
+  --bg-secondary: #1a1d27;
+  --bg-sidebar: #151820;
+  --bg-card: #1e2130;
+  --bg-hover: #252a3a;
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --text-on-node: #ffffff;
+  --border-subtle: rgba(148, 163, 184, 0.12);
+  --border-strong: rgba(148, 163, 184, 0.25);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.3);
+  color-scheme: dark;
+}
+
 /* iOS dá zoom em inputs com font-size < 16px ao focar — força tamanho seguro em mobile */
 @media (max-width: 768px) {
   input, select, textarea {

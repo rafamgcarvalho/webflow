@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ArrowLeftRight, Download, Upload, Variable, GitBranch, Repeat, X } from 'lucide-react';
 import type { Statement } from '../../types/flow';
 import { defaultStatement } from '../../types/flow';
@@ -31,14 +31,42 @@ const OPTIONS: Array<{
 ];
 
 export default function InsertModal({ open, onClose, onChoose }: Props) {
+  const [focusIdx, setFocusIdx] = useState(0);
+  const buttonsRef = useRef<Array<HTMLButtonElement | null>>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    setFocusIdx(0);
+    queueMicrotask(() => buttonsRef.current[0]?.focus());
+  }, [open]);
+
+  useEffect(() => {
+    if (!open) return;
+    buttonsRef.current[focusIdx]?.focus();
+  }, [open, focusIdx]);
+
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape') {
+        onClose();
+        return;
+      }
+      const cols = 2;
+      const max = OPTIONS.length - 1;
+      let next: number | null = null;
+      if (e.key === 'ArrowRight') next = Math.min(max, focusIdx + 1);
+      else if (e.key === 'ArrowLeft') next = Math.max(0, focusIdx - 1);
+      else if (e.key === 'ArrowDown') next = Math.min(max, focusIdx + cols);
+      else if (e.key === 'ArrowUp') next = Math.max(0, focusIdx - cols);
+      if (next !== null && next !== focusIdx) {
+        e.preventDefault();
+        setFocusIdx(next);
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [open, onClose]);
+  }, [open, onClose, focusIdx]);
 
   if (!open) return null;
 
@@ -90,55 +118,65 @@ export default function InsertModal({ open, onClose, onChoose }: Props) {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 8 }}>
-          {OPTIONS.map((opt) => (
-            <button
-              key={opt.kind}
-              onClick={() => onChoose(defaultStatement(opt.kind))}
-              style={{
-                display: 'flex',
-                alignItems: 'flex-start',
-                gap: 10,
-                padding: 12,
-                borderRadius: 8,
-                background: 'var(--bg-hover)',
-                border: '1px solid var(--border-subtle)',
-                color: 'var(--text-primary)',
-                cursor: 'pointer',
-                textAlign: 'left',
-                transition: 'transform 0.15s ease, border-color 0.15s ease',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = 'var(--border-strong)';
-                e.currentTarget.style.transform = 'translateY(-1px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = 'var(--border-subtle)';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
-            >
-              <div
+          {OPTIONS.map((opt, idx) => {
+            const isFocused = idx === focusIdx;
+            return (
+              <button
+                key={opt.kind}
+                ref={(el) => { buttonsRef.current[idx] = el; }}
+                onClick={() => onChoose(defaultStatement(opt.kind))}
+                onMouseEnter={() => setFocusIdx(idx)}
                 style={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: 6,
-                  background: opt.color,
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  flexShrink: 0,
+                  alignItems: 'flex-start',
+                  gap: 10,
+                  padding: 12,
+                  borderRadius: 8,
+                  background: 'var(--bg-hover)',
+                  border: '1px solid ' + (isFocused ? 'var(--border-strong)' : 'var(--border-subtle)'),
+                  color: 'var(--text-primary)',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'transform 0.15s ease, border-color 0.15s ease',
+                  transform: isFocused ? 'translateY(-1px)' : 'translateY(0)',
+                  outline: 'none',
                 }}
               >
-                <opt.Icon size={16} />
-              </div>
-              <div style={{ minWidth: 0 }}>
-                <div style={{ fontWeight: 600, fontSize: 13 }}>{opt.label}</div>
-                <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
-                  {opt.description}
+                <div
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 6,
+                    background: opt.color,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    flexShrink: 0,
+                  }}
+                >
+                  <opt.Icon size={16} />
                 </div>
-              </div>
-            </button>
-          ))}
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontWeight: 600, fontSize: 13 }}>{opt.label}</div>
+                  <div style={{ fontSize: 11, color: 'var(--text-secondary)', marginTop: 2 }}>
+                    {opt.description}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <div style={{
+          marginTop: 14,
+          paddingTop: 12,
+          borderTop: '1px solid var(--border-subtle)',
+          fontSize: 11,
+          color: 'var(--text-muted)',
+          textAlign: 'center',
+        }}>
+          Use as setas para navegar, <strong>Enter</strong> para escolher e <strong>Esc</strong> para fechar.
         </div>
       </div>
     </div>

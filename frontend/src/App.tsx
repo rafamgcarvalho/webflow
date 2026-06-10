@@ -129,6 +129,7 @@ export default function App() {
   }, [program.statements.length, isRunning]);
 
   const handleImport = useCallback(async (file: File) => {
+    if (dirty && !confirm('Tem alterações não salvas. Descartar e importar o arquivo?')) return;
     try {
       setErrorMessage(null);
       const imported = await importFprgFile(file);
@@ -136,7 +137,7 @@ export default function App() {
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : 'Erro ao importar.');
     }
-  }, [replaceProgram]);
+  }, [replaceProgram, dirty]);
 
   const handleExportC = useCallback(() => {
     downloadBlob(exportToC(program), `${slugify(program.name)}.c`, 'text/x-c');
@@ -178,6 +179,7 @@ export default function App() {
   }, [saving, program, currentFlowId]);
 
   const handleOpenFlow = useCallback(async (id: string) => {
+    if (dirty && !confirm('Tem alterações não salvas. Descartar e abrir o fluxo selecionado?')) return;
     try {
       setErrorMessage(null);
       const { flow } = await api.getFlow(id);
@@ -190,7 +192,7 @@ export default function App() {
     } catch (err) {
       setErrorMessage(err instanceof ApiError ? err.message : 'Erro ao abrir fluxo.');
     }
-  }, [replaceProgram]);
+  }, [replaceProgram, dirty]);
 
   const requestInput = useCallback((varName: string): Promise<string> => {
     setInputRequest(varName);
@@ -265,6 +267,18 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKey);
   }, [handleRun, handleSave, isRunning, program.statements.length]);
 
+  useEffect(() => {
+    if (!dirty) return;
+    const onBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = '';
+    };
+    window.addEventListener('beforeunload', onBeforeUnload);
+    return () => window.removeEventListener('beforeunload', onBeforeUnload);
+  }, [dirty]);
+
+  const handleClearConsole = useCallback(() => setConsoleLines([]), []);
+
   return (
     <FlowContext.Provider value={{
         activeStatementId,
@@ -326,6 +340,7 @@ export default function App() {
                       lines={consoleLines}
                       inputRequest={inputRequest}
                       onSubmitInput={submitInput}
+                      onClear={handleClearConsole}
                       onClose={() => setShowConsole(false)}
                     />
                   : null}

@@ -26,15 +26,14 @@ export default function LoginPage() {
         await register(name, email, password);
       }
     } catch (err) {
-      if (err instanceof ApiError) setError(err.message);
-      else setError('Não foi possível conectar ao servidor.');
+      setError(err instanceof ApiError ? err.message : 'Erro inesperado. Tente novamente.');
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div style={{
+    <div className="force-dark" style={{
       width: '100vw',
       height: '100vh',
       display: 'flex',

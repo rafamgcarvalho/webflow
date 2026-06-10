@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Maximize2, Minimize2, X } from 'lucide-react';
+import { Eraser, X } from 'lucide-react';
 
 export type ConsoleLine =
   | { type: 'out'; text: string }
@@ -10,22 +10,21 @@ interface Props {
   lines: ConsoleLine[];
   inputRequest: string | null;
   onSubmitInput: (value: string) => void;
+  onClear: () => void;
   onClose?: () => void;
-  onMaximize?: () => void;
-  maximized?: boolean;
 }
 
 export default function ConsolePanel({
   lines,
   inputRequest,
   onSubmitInput,
+  onClear,
   onClose,
-  onMaximize,
-  maximized,
 }: Props) {
   const [draft, setDraft] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const stickyBottomRef = useRef(true);
 
   useEffect(() => {
     if (inputRequest !== null) {
@@ -33,11 +32,21 @@ export default function ConsolePanel({
     }
   }, [inputRequest]);
 
+  // Só auto-scrolla se o usuário já estiver no fim. Se ele rolou pra cima
+  // pra ler algo, respeitamos isso até ele voltar para o fim manualmente.
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
+    if (!stickyBottomRef.current) return;
+    const el = scrollRef.current;
+    if (!el) return;
+    el.scrollTop = el.scrollHeight;
   }, [lines, inputRequest]);
+
+  const handleScroll = () => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - (el.scrollTop + el.clientHeight);
+    stickyBottomRef.current = distanceFromBottom < 24;
+  };
 
   const submit = () => {
     if (inputRequest === null) return;
@@ -67,11 +76,13 @@ export default function ConsolePanel({
           Console
         </span>
         <div style={{ display: 'flex', gap: 4 }}>
-          {onMaximize && (
-            <IconBtn onClick={onMaximize} title={maximized ? 'Restaurar' : 'Maximizar'}>
-              {maximized ? <Minimize2 size={13} /> : <Maximize2 size={13} />}
-            </IconBtn>
-          )}
+          <IconBtn
+            onClick={onClear}
+            title="Limpar console"
+            disabled={lines.length === 0 && inputRequest === null}
+          >
+            <Eraser size={13} />
+          </IconBtn>
           {onClose && (
             <IconBtn onClick={onClose} title="Fechar painel">
               <X size={13} />
@@ -82,6 +93,7 @@ export default function ConsolePanel({
 
       <div
         ref={scrollRef}
+        onScroll={handleScroll}
         style={{
           flex: 1,
           overflow: 'auto',
@@ -159,21 +171,36 @@ export default function ConsolePanel({
   );
 }
 
-function IconBtn({ onClick, title, children }: { onClick: () => void; title: string; children: React.ReactNode }) {
+function IconBtn({
+  onClick,
+  title,
+  children,
+  disabled,
+}: {
+  onClick: () => void;
+  title: string;
+  children: React.ReactNode;
+  disabled?: boolean;
+}) {
   return (
     <button
       onClick={onClick}
       title={title}
+      disabled={disabled}
       style={{
         background: 'transparent',
         border: 'none',
-        cursor: 'pointer',
+        cursor: disabled ? 'not-allowed' : 'pointer',
         color: 'var(--text-secondary)',
         padding: 4,
         display: 'flex',
         borderRadius: 4,
+        opacity: disabled ? 0.4 : 1,
       }}
-      onMouseEnter={(e) => (e.currentTarget.style.background = 'var(--bg-hover)')}
+      onMouseEnter={(e) => {
+        if (disabled) return;
+        e.currentTarget.style.background = 'var(--bg-hover)';
+      }}
       onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
     >
       {children}

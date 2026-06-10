@@ -22,10 +22,14 @@ export default function EditStatementModal({ statement, onSave, onClose, onDelet
     if (!statement) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        if (draft) onSave(draft);
+      }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [statement, onClose]);
+  }, [statement, draft, onClose, onSave]);
 
   if (!statement || !draft) return null;
 
@@ -202,8 +206,10 @@ export default function EditStatementModal({ statement, onSave, onClose, onDelet
             <button
               type="button"
               onClick={() => {
-                onDelete(draft.id);
-                onClose();
+                if (confirm('Excluir este bloco? Esta ação não pode ser desfeita.')) {
+                  onDelete(draft.id);
+                  onClose();
+                }
               }}
               style={{
                 display: 'flex',
@@ -255,6 +261,15 @@ export default function EditStatementModal({ statement, onSave, onClose, onDelet
               Salvar
             </button>
           </div>
+        </div>
+
+        <div style={{
+          marginTop: 12,
+          fontSize: 11,
+          color: 'var(--text-muted)',
+          textAlign: 'center',
+        }}>
+          <strong>Ctrl+Enter</strong> para salvar · <strong>Esc</strong> para cancelar
         </div>
       </form>
     </div>

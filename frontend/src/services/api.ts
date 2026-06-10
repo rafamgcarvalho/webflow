@@ -61,7 +61,12 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
-  const res = await fetch(`${API_URL}${path}`, { ...init, headers });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, { ...init, headers });
+  } catch {
+    throw new ApiError(0, 'Não foi possível conectar ao servidor. Verifique sua conexão.');
+  }
 
   // Sliding session: backend devolve novo token nos últimos minutos antes de expirar.
   const renewed = res.headers.get('X-Renewed-Token');
