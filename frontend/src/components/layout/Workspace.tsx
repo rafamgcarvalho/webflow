@@ -20,13 +20,10 @@ export default function Workspace({ canvas, variables, consolePanel }: Props) {
         overflow: 'hidden',
         background: 'var(--bg-primary)',
         position: 'relative',
-        padding: 6,
       }}>
         <div style={{
           flex: 1,
           minHeight: 0,
-          border: '1px solid var(--border-subtle)',
-          borderRadius: 8,
           overflow: 'hidden',
           position: 'relative',
         }}>
@@ -35,9 +32,9 @@ export default function Workspace({ canvas, variables, consolePanel }: Props) {
         {hasOverlay && (
           <div style={{
             position: 'absolute',
-            left: 6,
-            right: 6,
-            bottom: 6,
+            left: 8,
+            right: 8,
+            bottom: 8,
             top: '45%',
             display: 'flex',
             flexDirection: 'column',

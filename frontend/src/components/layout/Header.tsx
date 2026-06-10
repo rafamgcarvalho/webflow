@@ -46,13 +46,15 @@ export default function Header({
   return (
     <header style={{
       height: 48,
+      minHeight: 48,
       display: 'flex',
       alignItems: 'center',
-      padding: isMobile ? '0 8px' : '0 16px',
+      padding: isMobile ? '0 10px' : '0 16px',
       background: 'var(--bg-sidebar)',
-      borderBottom: '1px solid var(--border-subtle)',
-      gap: isMobile ? 6 : 12,
+      borderBottom: '1px solid var(--border-strong)',
+      gap: isMobile ? 8 : 12,
       flexShrink: 0,
+      zIndex: 10,
     }}>
       {isMobile && (
         <IconBtn onClick={onToggleSidebar} title="Menu">

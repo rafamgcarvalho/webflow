@@ -48,18 +48,20 @@ export default function Sidebar(props: Props) {
     if (isMobile) props.onClose();
   };
 
-  if (isMobile && !props.open) return null;
-
   return (
     <>
       {isMobile && (
         <div
           onClick={props.onClose}
+          aria-hidden={!props.open}
           style={{
             position: 'fixed',
             inset: 0,
             background: 'rgba(0,0,0,0.5)',
             zIndex: 80,
+            opacity: props.open ? 1 : 0,
+            pointerEvents: props.open ? 'auto' : 'none',
+            transition: 'opacity 220ms ease',
           }}
         />
       )}
@@ -78,6 +80,9 @@ export default function Sidebar(props: Props) {
           left: 0,
           zIndex: 90,
           boxShadow: '0 10px 30px rgba(0,0,0,0.4)',
+          transform: props.open ? 'translateX(0)' : 'translateX(-105%)',
+          transition: 'transform 260ms cubic-bezier(0.32, 0.72, 0, 1)',
+          willChange: 'transform',
         } : {}),
       }}>
       {isMobile && (
