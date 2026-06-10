@@ -10,7 +10,11 @@ export function createServer() {
 
   app.disable('x-powered-by');
   app.use(helmet());
-  app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+  app.use(cors({
+    origin: env.CORS_ORIGIN,
+    credentials: true,
+    exposedHeaders: ['X-Renewed-Token'],
+  }));
   app.use(express.json({ limit: '1mb' }));
 
   app.get('/api/health', (_req: Request, res: Response) => {

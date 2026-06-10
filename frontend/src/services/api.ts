@@ -1,6 +1,19 @@
 const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:3001';
 const TOKEN_KEY = 'webflow-token';
 
+// sessionStorage: o token é apagado quando o navegador é fechado,
+// forçando login novamente — comportamento pedido para a auth.
+const storage: Storage | null = typeof sessionStorage !== 'undefined' ? sessionStorage : null;
+
+export const AUTH_EVENTS = {
+  UNAUTHORIZED: 'webflow:auth-unauthorized',
+} as const;
+
+function dispatchUnauthorized() {
+  if (typeof window === 'undefined') return;
+  window.dispatchEvent(new CustomEvent(AUTH_EVENTS.UNAUTHORIZED));
+}
+
 export interface ApiUser {
   id: string;
   email: string;
@@ -24,7 +37,7 @@ export class ApiError extends Error {
 
 export function getStoredToken(): string | null {
   try {
-    return localStorage.getItem(TOKEN_KEY);
+    return storage?.getItem(TOKEN_KEY) ?? null;
   } catch {
     return null;
   }
@@ -32,8 +45,9 @@ export function getStoredToken(): string | null {
 
 export function storeToken(token: string | null) {
   try {
-    if (token) localStorage.setItem(TOKEN_KEY, token);
-    else localStorage.removeItem(TOKEN_KEY);
+    if (!storage) return;
+    if (token) storage.setItem(TOKEN_KEY, token);
+    else storage.removeItem(TOKEN_KEY);
   } catch {
     // noop
   }
@@ -48,8 +62,18 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (token) headers.set('Authorization', `Bearer ${token}`);
 
   const res = await fetch(`${API_URL}${path}`, { ...init, headers });
+
+  // Sliding session: backend devolve novo token nos últimos minutos antes de expirar.
+  const renewed = res.headers.get('X-Renewed-Token');
+  if (renewed) storeToken(renewed);
+
   const isJson = res.headers.get('content-type')?.includes('application/json');
   const data = isJson ? await res.json() : null;
+
+  if (res.status === 401) {
+    storeToken(null);
+    dispatchUnauthorized();
+  }
 
   if (!res.ok) {
     const message = (data && (data.error || data.message)) || res.statusText;

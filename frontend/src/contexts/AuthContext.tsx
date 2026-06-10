@@ -6,11 +6,24 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { api, getStoredToken, storeToken, type ApiUser } from '../services/api';
+import {
+  api,
+  getStoredToken,
+  storeToken,
+  AUTH_EVENTS,
+  type ApiUser,
+} from '../services/api';
+import { useIdleTimeout } from '../hooks/useIdleTimeout';
+
+const IDLE_TIMEOUT_MS = 30 * 60 * 1000;
+
+export type SessionEndReason = 'idle' | 'expired' | null;
 
 interface AuthContextValue {
   user: ApiUser | null;
   loading: boolean;
+  sessionEndReason: SessionEndReason;
+  clearSessionEndReason: () => void;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -19,6 +32,8 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   loading: true,
+  sessionEndReason: null,
+  clearSessionEndReason: () => {},
   login: async () => {},
   register: async () => {},
   logout: () => {},
@@ -27,6 +42,7 @@ const AuthContext = createContext<AuthContextValue>({
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<ApiUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionEndReason, setSessionEndReason] = useState<SessionEndReason>(null);
 
   useEffect(() => {
     const token = getStoredToken();
@@ -40,25 +56,53 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .finally(() => setLoading(false));
   }, []);
 
+  const endSession = useCallback((reason: SessionEndReason) => {
+    storeToken(null);
+    setUser((prev) => {
+      if (prev && reason) setSessionEndReason(reason);
+      return null;
+    });
+  }, []);
+
+  const logout = useCallback(() => {
+    setSessionEndReason(null);
+    endSession(null);
+  }, [endSession]);
+
+  useEffect(() => {
+    const handler = () => endSession('expired');
+    window.addEventListener(AUTH_EVENTS.UNAUTHORIZED, handler);
+    return () => window.removeEventListener(AUTH_EVENTS.UNAUTHORIZED, handler);
+  }, [endSession]);
+
+  useIdleTimeout(user !== null, IDLE_TIMEOUT_MS, () => endSession('idle'));
+
   const login = useCallback(async (email: string, password: string) => {
     const { token, user } = await api.login({ email, password });
     storeToken(token);
+    setSessionEndReason(null);
     setUser(user);
   }, []);
 
   const register = useCallback(async (name: string, email: string, password: string) => {
     const { token, user } = await api.register({ name, email, password });
     storeToken(token);
+    setSessionEndReason(null);
     setUser(user);
   }, []);
 
-  const logout = useCallback(() => {
-    storeToken(null);
-    setUser(null);
-  }, []);
+  const clearSessionEndReason = useCallback(() => setSessionEndReason(null), []);
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, register, logout }}>
+    <AuthContext.Provider value={{
+      user,
+      loading,
+      sessionEndReason,
+      clearSessionEndReason,
+      login,
+      register,
+      logout,
+    }}>
       {children}
     </AuthContext.Provider>
   );

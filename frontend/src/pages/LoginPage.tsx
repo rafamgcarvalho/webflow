@@ -1,12 +1,12 @@
 import { useState, type FormEvent } from 'react';
-import { Workflow, Check, Eye, EyeOff, ArrowRight } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { Workflow, Check, Eye, EyeOff, ArrowRight, Clock } from 'lucide-react';
+import { useAuth, type SessionEndReason } from '../contexts/AuthContext';
 import { ApiError } from '../services/api';
 
 type Mode = 'login' | 'register';
 
 export default function LoginPage() {
-  const { login, register } = useAuth();
+  const { login, register, sessionEndReason, clearSessionEndReason } = useAuth();
   const [mode, setMode] = useState<Mode>('login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -56,6 +56,8 @@ export default function LoginPage() {
         error={error}
         busy={busy}
         onSubmit={submit}
+        sessionEndReason={sessionEndReason}
+        onDismissSessionBanner={clearSessionEndReason}
       />
     </div>
   );
@@ -197,6 +199,8 @@ interface FormProps {
   error: string | null;
   busy: boolean;
   onSubmit: (e: FormEvent) => void;
+  sessionEndReason: SessionEndReason;
+  onDismissSessionBanner: () => void;
 }
 
 function FormPanel(p: FormProps) {
@@ -237,6 +241,10 @@ function FormPanel(p: FormProps) {
               : 'Comece a montar seus fluxogramas em minutos.'}
           </p>
         </div>
+
+        {p.sessionEndReason && (
+          <SessionEndedBanner reason={p.sessionEndReason} onDismiss={p.onDismissSessionBanner} />
+        )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {!isLogin && (
@@ -393,6 +401,72 @@ function SwitchLink({ onClick, children }: { onClick: () => void; children: Reac
     >
       {children}
     </button>
+  );
+}
+
+function SessionEndedBanner({
+  reason,
+  onDismiss,
+}: {
+  reason: Exclude<SessionEndReason, null>;
+  onDismiss: () => void;
+}) {
+  const title = reason === 'idle' ? 'Sessão encerrada por inatividade' : 'Sessão expirada';
+  const message = reason === 'idle'
+    ? 'Você ficou um tempo sem usar o sistema. Por segurança, sua sessão foi encerrada — entre novamente para continuar.'
+    : 'Sua sessão expirou ou não é mais válida. Entre novamente para continuar.';
+  return (
+    <div
+      role="status"
+      style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: 10,
+        padding: '12px 14px',
+        borderRadius: 10,
+        background: 'rgba(245, 158, 11, 0.10)',
+        border: '1px solid rgba(245, 158, 11, 0.32)',
+      }}
+    >
+      <div style={{
+        width: 28,
+        height: 28,
+        borderRadius: 999,
+        background: 'rgba(245, 158, 11, 0.18)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        color: '#f59e0b',
+        flexShrink: 0,
+      }}>
+        <Clock size={15} />
+      </div>
+      <div style={{ minWidth: 0, flex: 1 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 2 }}>
+          {title}
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+          {message}
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={onDismiss}
+        aria-label="Fechar aviso"
+        style={{
+          background: 'transparent',
+          border: 'none',
+          color: 'var(--text-muted)',
+          cursor: 'pointer',
+          padding: 2,
+          marginTop: -2,
+          fontSize: 16,
+          lineHeight: 1,
+        }}
+      >
+        ×
+      </button>
+    </div>
   );
 }
 

@@ -26,6 +26,21 @@ export class RuntimeError extends Error {
   }
 }
 
+export interface RunOptions {
+  /** Atraso fixo (ms) antes de cada comando. Padrão de produção: 120. Use 0 nos testes. */
+  stepDelayMs?: number;
+  /** Limite de iterações por laço `while` antes de abortar (guarda contra laço infinito). */
+  maxIterations?: number;
+}
+
+const DEFAULT_STEP_DELAY_MS = 120;
+const DEFAULT_MAX_ITERATIONS = 100_000;
+
+interface ResolvedRunOptions {
+  stepDelayMs: number;
+  maxIterations: number;
+}
+
 interface Scope {
   vars: Map<string, VariableInfo>;
 }
@@ -107,12 +122,13 @@ async function execStatements(
   scope: Scope,
   cb: RunnerCallbacks,
   signal: AbortSignal,
+  opts: ResolvedRunOptions,
 ): Promise<void> {
   for (const stmt of statements) {
     if (signal.aborted) throw new RuntimeError('Execução interrompida.');
     cb.onActiveStatement?.(stmt.id);
-    await sleep(120, signal);
-    await execStatement(stmt, scope, cb, signal);
+    if (opts.stepDelayMs > 0) await sleep(opts.stepDelayMs, signal);
+    await execStatement(stmt, scope, cb, signal, opts);
   }
 }
 
@@ -121,6 +137,7 @@ async function execStatement(
   scope: Scope,
   cb: RunnerCallbacks,
   signal: AbortSignal,
+  opts: ResolvedRunOptions,
 ): Promise<void> {
   switch (stmt.kind) {
     case 'declare': {
@@ -158,16 +175,16 @@ async function execStatement(
     case 'if': {
       const cond = evalExpr(stmt.condition, scope);
       if (toBool(cond)) {
-        await execStatements(stmt.thenBranch, scope, cb, signal);
+        await execStatements(stmt.thenBranch, scope, cb, signal, opts);
       } else {
-        await execStatements(stmt.elseBranch, scope, cb, signal);
+        await execStatements(stmt.elseBranch, scope, cb, signal, opts);
       }
       return;
     }
     case 'while': {
       // Guarda contra laço infinito: corta após N iterações pra não travar a aba.
       let iterations = 0;
-      const MAX_ITERATIONS = 100_000;
+      const MAX_ITERATIONS = opts.maxIterations;
       while (true) {
         if (signal.aborted) throw new RuntimeError('Execução interrompida.');
         const cond = evalExpr(stmt.condition, scope);
@@ -178,7 +195,7 @@ async function execStatement(
             `Loop ultrapassou ${MAX_ITERATIONS} iterações — possível laço infinito.`,
           );
         }
-        await execStatements(stmt.body, scope, cb, signal);
+        await execStatements(stmt.body, scope, cb, signal, opts);
       }
       return;
     }
@@ -223,13 +240,18 @@ export interface RunController {
 export function runProgram(
   program: FlowProgram,
   cb: RunnerCallbacks,
+  options: RunOptions = {},
 ): RunController {
+  const opts: ResolvedRunOptions = {
+    stepDelayMs: options.stepDelayMs ?? DEFAULT_STEP_DELAY_MS,
+    maxIterations: options.maxIterations ?? DEFAULT_MAX_ITERATIONS,
+  };
   const scope: Scope = { vars: new Map() };
   const controller = new AbortController();
   const promise = (async () => {
     try {
       emitVars(scope, cb);
-      await execStatements(program.statements, scope, cb, controller.signal);
+      await execStatements(program.statements, scope, cb, controller.signal, opts);
       cb.onActiveStatement?.(null);
     } catch (err) {
       cb.onActiveStatement?.(null);
