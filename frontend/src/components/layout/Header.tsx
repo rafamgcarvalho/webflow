@@ -1,6 +1,6 @@
 import {
   Workflow, Moon, Sun, Variable, Terminal, LogOut,
-  Save, FolderOpen, Loader2, Circle, Menu,
+  Save, FolderOpen, Loader2, Circle,
 } from 'lucide-react';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useAuth } from '../../contexts/AuthContext';
@@ -45,21 +45,21 @@ export default function Header({
 
   return (
     <header style={{
-      height: 48,
       minHeight: 48,
+      height: isMobile ? 'auto' : 48,
       display: 'flex',
       alignItems: 'center',
       padding: isMobile ? '0 10px' : '0 16px',
+      paddingTop: isMobile ? 'env(safe-area-inset-top, 0)' : undefined,
       background: 'var(--bg-sidebar)',
       borderBottom: '1px solid var(--border-strong)',
+      boxShadow: isMobile ? '0 1px 0 rgba(0,0,0,0.5)' : undefined,
       gap: isMobile ? 8 : 12,
       flexShrink: 0,
-      zIndex: 10,
+      zIndex: 30,
     }}>
       {isMobile && (
-        <IconBtn onClick={onToggleSidebar} title="Menu">
-          <Menu size={18} />
-        </IconBtn>
+        <MobileHamburger onClick={onToggleSidebar} />
       )}
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
@@ -259,6 +259,36 @@ function ToggleBtn({ active, onClick, title, Icon, label }: {
     >
       <Icon size={14} />
       {label}
+    </button>
+  );
+}
+
+function MobileHamburger({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      title="Menu"
+      aria-label="Abrir menu"
+      style={{
+        background: 'var(--bg-hover)',
+        border: '1px solid var(--border-strong)',
+        color: 'var(--text-primary)',
+        width: 40,
+        height: 40,
+        borderRadius: 8,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 4,
+        cursor: 'pointer',
+        flexShrink: 0,
+        padding: 0,
+      }}
+    >
+      <span style={{ width: 18, height: 2, background: 'currentColor', borderRadius: 1 }} />
+      <span style={{ width: 18, height: 2, background: 'currentColor', borderRadius: 1 }} />
+      <span style={{ width: 18, height: 2, background: 'currentColor', borderRadius: 1 }} />
     </button>
   );
 }
