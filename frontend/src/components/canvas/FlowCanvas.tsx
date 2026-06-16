@@ -6,6 +6,7 @@ import {
   Controls,
   useNodesState,
   useEdgesState,
+  useReactFlow,
   type Node,
   type Edge,
   type EdgeTypes,
@@ -32,12 +33,19 @@ export default function FlowCanvas({ program, editMode }: Props) {
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+  const { fitView } = useReactFlow();
 
   useEffect(() => {
     const result = renderProgram(program);
     setNodes(result.nodes);
     setEdges(result.edges);
-  }, [program, editMode, setNodes, setEdges]);
+    // Reposiciona a viewport pra mostrar o novo conteúdo — sem isso, ao trocar
+    // de fluxo a câmera fica onde estava e os nós novos podem cair fora da tela.
+    const id = requestAnimationFrame(() => {
+      fitView({ padding: 0.3, duration: 400 });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [program, editMode, setNodes, setEdges, fitView]);
 
   const handleNodeClick = useCallback((_e: unknown, node: Node) => {
     if (node.type && EDITABLE_KINDS.has(node.type)) {
